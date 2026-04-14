@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>С 8 Марта — волшебное поздравление</title>
+    <!-- Google Fonts и Font Awesome для стиля и иконок -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* легкая защита от выделения, но не мешает кликам */
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fbc2c2, #fdd9b5, #f9b8d4, #ffe2b5);
+            background-size: 400% 400%;
+            animation: gentleFlow 14s ease infinite;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        /* Анимированный градиент фона (дополнительный слой для праздничного настроения) */
+        @keyframes gentleFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Холст с лепестками — анимированная "картинка" на заднем плане */
+        #petalCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;   /* чтобы лепестки не перехватывали клики по карточке */
+            z-index: 1;
+        }
+
+        /* Контейнер для карточки (центрирование и 3D-сцена) */
+        .card-wrapper {
+            perspective: 1500px;
+            z-index: 20;
+            cursor: pointer;
+            margin: 20px;
+        }
+
+        /* 3D карточка */
+        .card {
+            width: 340px;
+            height: 440px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+            border-radius: 32px;
+            box-shadow: 0 30px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Общие стили для обеих сторон */
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 28px 20px;
+            box-sizing: border-box;
+            background: rgba(255, 248, 245, 0.98);
+            backdrop-filter: blur(2px);
+            transition: all 0.2s;
+        }
+
+        /* Лицевая сторона — нежный розовый градиент */
+        .front {
+            background: linear-gradient(145deg, #fff9fc, #fff0f3);
+            color: #b43b5e;
+            transform: rotateY(0deg);
+            border: 1px solid rgba(255, 210, 210, 0.6);
+        }
+
+        /* Оборотная сторона — тёплая кремовая с акцентом */
+        .back {
+            background: linear-gradient(135deg, #fff4f0, #ffedea);
+            color: #a53154;
+            transform: rotateY(180deg);
+            font-weight: 500;
+            font-size: 1.35rem;
+            line-height: 1.45;
+            justify-content: center;
+            gap: 15px;
+            border: 1px solid rgba(255, 180, 180, 0.5);
+        }
+
+        /* Класс переворота */
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* Стили контента на лицевой стороне */
+        .front i:first-child {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            color: #e85d8c;
+            text-shadow: 0 2px 8px rgba(232, 93, 140, 0.2);
+        }
+
+        .front h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            background: linear-gradient(120deg, #c53a6b, #ff8aa7);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .front p {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #b75578;
+            margin-top: 5px;
+        }
+
+        .front .small-icon {
+            margin-top: 28px;
+            font-size: 2rem;
+            color: #f5a3bb;
+            animation: pulse 1.8s infinite;
+        }
+
+        /* лёгкая пульсация для приглашения кликнуть */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        /* Обратная сторона: поздравление + иконка */
+        .back i {
+            font-size: 3.2rem;
+            margin-bottom: 8px;
+            color: #e36f95;
+        }
+
+        #greetingText {
+            font-weight: 600;
+            font-size: 1.3rem;
+            max-width: 90%;
+            margin-top: 10px;
+            padding: 5px;
+            color: #9e3b5b;
+            background: rgba(255, 245, 240, 0.7);
+            border-radius: 48px;
+            display: inline-block;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        /* Декоративный подвал с лёгкой подписью */
+        .festive-footer {
+            position: absolute;
+            bottom: 18px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 250, 240, 0.95);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            z-index: 15;
+            pointer-events: none;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(2px);
+            padding: 6px;
+        }
+
+        /* Адаптивность для маленьких экранов */
+        @media (max-width: 550px) {
+            .card {
+                width: 290px;
+                height: 380px;
+            }
+            .front h2 {
+                font-size: 1.7rem;
+            }
+            .back {
+                font-size: 1.2rem;
+            }
+            #greetingText {
+                font-size: 1.1rem;
+            }
+            .front i:first-child {
+                font-size: 3.8rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .card {
+                width: 260px;
+                height: 350px;
+            }
+            .back {
+                font-size: 1rem;
+            }
+        }
+
+        /* Эффект при наведении — лёгкое свечение, но не ломает анимацию */
+        .card-wrapper:hover .card:not(.flipped) {
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Анимированный фон canvas (падающие лепестки/цветы) -->
+    <canvas id="petalCanvas"></canvas>
+
+    <!-- Карточка-поздравление -->
+    <div class="card-wrapper" id="cardWrapper">
+        <div class="card" id="flipCard">
+            <!-- лицевая сторона (обложка) -->
+            <div class="front">
+                <i class="fas fa-female"></i>
+                <h2>С 8 Марта!</h2>
+                <p>Весна, нежность и красота</p>
+                <div class="small-icon">
+                    <i class="fas fa-arrow-right"></i> <i class="fas fa-heart"></i>
+                </div>
+                <p style="font-size: 0.85rem; margin-top: 20px;">нажми на карточку ✨</p>
+            </div>
+
+            <!-- обратная сторона (сюда будет подставляться рандомное поздравление) -->
+            <div class="back">
+                <i class="fas fa-gift"></i>
+                <p id="greetingText">🌸 Пусть сбудутся мечты!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="festive-footer">
+        🌷 С Международным женским днём!  🌷
+    </div>
+
+    <script>
+        // ---------- СПИСОК ПРАЗДРАВЛЕНИЙ (неименные, искренние) ----------
+        const congratulationsList = [
+            "🌺 Пусть весна подарит море улыбок, тепла и вдохновения!",
+            "🌸 Счастья, цветов и самых светлых мгновений в этот чудесный день!",
+            "🌼 Пусть каждый день сияет радостью, а сердце поёт от любви!",
+            "🌷 Оставайтесь такой же прекрасной, как первые весенние цветы!",
+            "💐 Желаем нежности, уверенности и исполнения самых заветных желаний!",
+            "✨ Пусть женское счастье цветёт ярче всех мимоз и тюльпанов!",
+            "🌺 Легкости, вдохновения и океана комплиментов в этот день!",
+            "💖 Пусть в душе всегда царит весна, а удача сопровождает каждый шаг!",
+            "🌼 Будьте любимы и счастливы, словно героини лучших сказок!",
+            "🌸 Солнечного настроения, аромата цветов и волшебных подарков!",
+            "🌷 Пусть улыбки окружающих согревают, а мечты превращаются в реальность!",
+            "💫 Здоровья, гармонии и бесконечной женской энергии!",
+            "🍃 Пусть жизнь дарит только приятные сюрпризы и тёплые объятия!",
+            "🌺 Желаю ярких красок, нежности ветра и счастья без границ!",
+            "🌟 Пусть ваша красота и обаяние покоряют мир каждый день!"
+        ];
+
+        // DOM элементы
+        const cardElement = document.getElementById('flipCard');
+        const greetingTextSpan = document.getElementById('greetingText');
+        const cardWrapper = document.getElementById('cardWrapper');
+
+        let isFlipped = false;   // состояние карточки (перевернута или нет)
+
+        // Функция получения случайного поздравления из списка
+        function getRandomGreeting() {
+            const randomIndex = Math.floor(Math.random() * congratulationsList.length);
+            return congratulationsList[randomIndex];
+        }
+
+        // Обработчик клика по карточке (используем всплытие, но кликаем именно по врапперу/карте)
+        cardWrapper.addEventListener('click', (event) => {
+            // предотвращаем случайные двойные срабатывания (но они не критичны)
+            event.stopPropagation();
+            
+            // Если карточка НЕ перевернута (лицевая сторона видна)
+            if (!isFlipped) {
+                // 1. Получаем новое случайное поздравление
+                const freshGreeting = getRandomGreeting();
+                // 2. Обновляем текст на оборотной стороне
+                greetingTextSpan.textContent = freshGreeting;
+                // 3. Добавляем класс flip, карточка переворачивается
+                cardElement.classList.add('flipped');
+                isFlipped = true;
+            } 
+            else {
+                // Карточка перевернута — переворачиваем обратно, показываем лицевую сторону
+                cardElement.classList.remove('flipped');
+                isFlipped = false;
+                // Примечание: поздравление на обратной стороне остаётся тем же,
+                // но при следующем клике (снова лицевая->обратная) будет новое.
+                // Это логично: чтобы увидеть новое поздравление — нужно снова открыть.
+            }
+        });
+
+        // --- Дополнительная функция, чтобы при старте на обороте было красивое стартовое пожелание,
+        // но оно не будет показано, пока карточка не перевернется. Тем не менее, зададим приятное первое.
+        greetingTextSpan.textContent = "🌸 Пусть весна начнётся с чуда! 🌸";
+
+        // ---------- АНИМИРОВАННЫЙ ФОН (падающие лепестки / нежные цветы) ----------
+        const canvas = document.getElementById('petalCanvas');
+        const ctx = canvas.getContext('2d');
+        let canvasWidth = window.innerWidth;
+        let canvasHeight = window.innerHeight;
+        let particles = [];
+
+        // Функция изменения размера canvas
+        function resizeCanvasBackground() {
+            canvasWidth = window.innerWidth;
+            canvasHeight = window.innerHeight;
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+        }
+
+        // Класс для частицы (лепесток/цветочек)
+        class FloatingPetal {
+            constructor(x, y, size, speedY, speedX, rotation, rotSpeed, color, opacity = 0.85) {
+                this.x = x;
+                this.y = y;
+                this.size = size;          // размер (ширина эллипса)
+                this.speedY = speedY;      // скорость падения вниз
+                this.speedX = speedX;      // горизонтальный дрейф
+                this.rotation = rotation;   // текущий угол поворота
+                this.rotSpeed = rotSpeed;   // скорость вращения
+                this.color = color;
+                this.opacity = opacity;
+            }
+
+            // обновление позиции
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.rotation += this.rotSpeed;
+
+                // Зацикливание: если упал за нижнюю границу — появляется сверху
+                if (this.y > canvasHeight + this.size) {
+                    this.y = -this.size;
+                    this.x = Math.random() * canvasWidth;
+                }
+                // Зацикливание по горизонтали
+                if (this.x > canvasWidth + this.size) {
+                    this.x = -this.size;
+                }
+                if (this.x < -this.size) {
+                    this.x = canvasWidth + this.size;
+                }
+            }
+
+            // отрисовка лепестка (в виде закругленного эллипса, похожего на лепесток)
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.beginPath();
+                // форма похожая на лепесток или каплю: эллипс с разными радиусами
+                ctx.ellipse(0, 0, this.size * 0.7, this.size, 0, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                // Добавим маленькую жилку для красоты
+                ctx.beginPath();
+                ctx.moveTo(0, -this.size * 0.4);
+                ctx.lineTo(0, this.size * 0.4);
+                ctx.lineWidth = 1.2;
+                ctx.strokeStyle = `rgba(180, 70, 90, 0.25)`;
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        // Создание роя частиц (лепестков)
+        function createPetals(count) {
+            const petalsArray = [];
+            // Нежная палитра: розовые, персиковые, кремовые оттенки
+            const petalColors = [
+                '#FFB7C5', '#FFC0CB', '#FFD1DC', '#FADADD', '#FFDAB9', '#FFCCDD', '#FBC4C0', '#FED7D0', '#EAA8B8'
+            ];
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * canvasWidth;
+                const y = Math.random() * canvasHeight;
+                const size = 9 + Math.random() * 13;        // размер от 9 до 22px
+                const speedY = 0.4 + Math.random() * 2.2;   // скорость падения
+                const speedX = (Math.random() - 0.5) * 0.9;  // лёгкий ветерок
+                const rotation = Math.random() * Math.PI * 2;
+                const rotSpeed = (Math.random() - 0.5) * 0.04;
+                const color = petalColors[Math.floor(Math.random() * petalColors.length)];
+                const opacity = 0.7 + Math.random() * 0.25;
+                petalsArray.push(new FloatingPetal(x, y, size, speedY, speedX, rotation, rotSpeed, color, opacity));
+            }
+            return petalsArray;
+        }
+
+        // Анимационный цикл
+        let animationFrameId = null;
+        function animateBackground() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            for (let petal of particles) {
+                petal.update();
+                petal.draw();
+            }
+            animationFrameId = requestAnimationFrame(animateBackground);
+        }
+
+        // Инициализация фона и частиц
+        function initBackground() {
+            resizeCanvasBackground();
+            // Создаём от 70 до 110 частиц для эффекта, но не перегружаем
+            const particleCount = Math.min(100, Math.max(70, Math.floor(window.innerWidth / 12)));
+            particles = createPetals(particleCount);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animateBackground();
+        }
+
+        // Обработка изменения размера окна: пересоздаём холст и лепестки под новый размер
+        window.addEventListener('resize', () => {
+            resizeCanvasBackground();
+            // пересоздаём частицы с учётом новой ширины/высоты и подходящего количества
+            const newCount = Math.min(100, Math.max(70, Math.floor(window.innerWidth / 12)));
+            particles = createPetals(newCount);
+        });
+
+        // Запускаем анимированный фон
+        initBackground();
+
+        // Небольшая дополнительная изюминка: если пользователь долго не кликает,
+        // можно было бы ничего не делать — карточка ждёт. Но можно лёгкое "приглашение",
+        // однако оставляем минималистично.
+
+        // Также обеспечим, чтобы при клике не было задержек и конфликтов с canvas
+        // (canvas pointer-events: none уже решает проблему)
+        
+        // Для особо аккуратной работы на тач-устройствах:
+        // предотвращаем случайное масштабирование при двойном тапе на карточку (необязательно, но приятно)
+        cardWrapper.addEventListener('touchstart', (e) => {
+            // просто чтобы событие не вызывало лишнего зума, ничего не блокируем
+        });
+        
+        // Маленькая анимация "приветствия": слегка пульсирует обложка только при загрузке (добавим класс)
+        setTimeout(() => {
+            const frontSide = document.querySelector('.front .small-icon');
+            if (frontSide) {
+                frontSide.style.animation = 'pulse 1.2s ease-in-out';
+                setTimeout(() => {
+                    if (frontSide) frontSide.style.animation = '';
+                }, 1200);
+            }
+        }, 300);
+        
+        // Легкая подсказка в консоль (для души)
+        console.log('🌸 С 8 Марта! Нажми на карточку — получи теплое пожелание! 🌸');
+    </script>
+</body>
+</html>
